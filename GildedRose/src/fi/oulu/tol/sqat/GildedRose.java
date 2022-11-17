@@ -69,11 +69,6 @@ public class GildedRose {
                 }
             }
 
-            if (!"Sulfuras, Hand of Ragnaros".equals(items.get(i).getName()))
-            {
-                items.get(i).setSellIn(items.get(i).getSellIn() - 1);
-            }
-
             if (items.get(i).getSellIn() < 0)
             {
                 if (!"Aged Brie".equals(items.get(i).getName()))
@@ -100,6 +95,11 @@ public class GildedRose {
                         items.get(i).setQuality(items.get(i).getQuality() + 1);
                     }
                 }
+            }
+            
+            if (!"Sulfuras, Hand of Ragnaros".equals(items.get(i).getName()))
+            {
+                items.get(i).setSellIn(items.get(i).getSellIn() - 1);
             }
         }
     }

@@ -2,25 +2,44 @@ package fi.oulu.tol.sqat.tests;
 
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.List;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import fi.oulu.tol.sqat.GildedRose;
 import fi.oulu.tol.sqat.Item;
 
 public class GildedRoseTest {
+	private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+	private final PrintStream originalOut = System.out;
+	
+	@Before
+	public void setUpStreams() {
+	    System.setOut(new PrintStream(outContent));
+	}
 
+	@After
+	public void restoreStreams() {
+	    System.setOut(originalOut);
+	}
+	
 	@Test
 	public void testMain() {
-		GildedRose.main(null);
+	    GildedRose.main(null);
+	    
+	    assertEquals("Failed print output", "OMGHAI!", outContent.toString().trim());
+		
 	}
 	
 	@Test
 	public void exampleTest() {
 		//create an inn, add an item, and simulate one day
 		GildedRose inn = new GildedRose();
-		inn.setItem(new Item("+5 Dexterity Vest", 10, 20));
+		inn.setItem(new Item("+5 Dexterity Vest", 0, 20));
 		
 		inn.oneDay();
 		
@@ -37,18 +56,23 @@ public class GildedRoseTest {
 		//create an inn, add Sulfuras, a special item which never decreases in quality, and simulate one day
 		GildedRose inn = new GildedRose();
 		inn.setItem(new Item("Sulfuras, Hand of Ragnaros", 0, 80));
-		// test what happens if the sellin is decreased
+		// test what happens if the sellin is less than 0
 		inn.setItem(new Item("Sulfuras, Hand of Ragnaros", -1, 80));
+		// test what happens if the sellin is more than 0
+		inn.setItem(new Item("Sulfuras, Hand of Ragnaros", 1, 80));
+		
 		inn.oneDay();
 		
 		//access a list of items, get the quality of the one set
 		List<Item> items = inn.getItems();
 		int quality0 = items.get(0).getQuality();
 		int quality1 = items.get(0).getQuality();
+		int quality2 = items.get(2).getQuality();
 		
 		//assert quality has not decreased
 		assertEquals("Failed quality for Hand of Sulfuras", 80, quality0);
 		assertEquals("Failed quality for Hand of Sulfuras", 80, quality1);
+		assertEquals("Failed quality for Hand of Sulfuras", 80, quality2);
 	}
 	
 	@Test
@@ -60,8 +84,12 @@ public class GildedRoseTest {
 		GildedRose inn = new GildedRose();
 		// quality should increase by 1
 		inn.setItem(new Item("Backstage passes to a TAFKAL80ETC concert", 15, 20));
+		// quality should increase by 1
+		inn.setItem(new Item("Backstage passes to a TAFKAL80ETC concert", 11, 20));
 		// quality should increase by 2
 		inn.setItem(new Item("Backstage passes to a TAFKAL80ETC concert", 10, 20));
+		// quality should increase by 2
+		inn.setItem(new Item("Backstage passes to a TAFKAL80ETC concert", 6, 20));
 		// quality should increase by 3
 		inn.setItem(new Item("Backstage passes to a TAFKAL80ETC concert", 5, 20));
 		// quality should be zero
@@ -76,12 +104,16 @@ public class GildedRoseTest {
 		int quality1 = items.get(1).getQuality();
 		int quality2 = items.get(2).getQuality();
 		int quality3 = items.get(3).getQuality();
+		int quality4 = items.get(4).getQuality();
+		int quality5 = items.get(5).getQuality();
 		
 		//assert quality has changed
 		assertEquals("Failed quality for Backstage Pass", 21, quality0);
-		assertEquals("Failed quality for Backstage Pass", 22, quality1);
-		assertEquals("Failed quality for Backstage Pass", 23, quality2);
-		assertEquals("Failed quality for Backstage Pass", 0, quality3);
+		assertEquals("Failed quality for Backstage Pass", 21, quality1);
+		assertEquals("Failed quality for Backstage Pass", 22, quality2);
+		assertEquals("Failed quality for Backstage Pass", 22, quality3);
+		assertEquals("Failed quality for Backstage Pass", 23, quality4);
+		assertEquals("Failed quality for Backstage Pass", 0, quality5);
 	}
 	
 	@Test
